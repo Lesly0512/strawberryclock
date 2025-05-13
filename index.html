@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>Kid</title>
+    <link rel="manifest" href="manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js').then(() => {
+                console.log('Service Worker 已註冊');
+            });
+        }
+    </script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+    * {
+        box-sizing: border-box;
+    }
+
+        :root {
+            --bg-color: #fff0f5;
+            --text-color: #333;
+            --button-color: #ff8080;
+            --button-hover: #ff4d4d;
+        }
+
+        body.dark {
+            --bg-color: #2c2c2c;
+            --text-color: #f5f5f5;
+            --button-color: #ff4d4d;
+            --button-hover: #e63946;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: 'Comic Sans MS', cursive;
+            transition: background-color 0.5s, color 0.5s;
+        }
+
+        
+    .container {
+        width: 100%;
+        max-width: 500px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .tomato {
+            width: 150px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        h1 {
+            font-size: 3em;
+            color: var(--button-color);
+            margin: 20px;
+        }
+
+        #timer {
+            font-size: 4em;
+            color: var(--text-color);
+            margin: 20px;
+        }
+
+        .buttons {
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: var(--button-color);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.5em;
+            margin: 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--button-hover);
+        }
+
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #666;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="mode-toggle" id="modeToggle">🌙 夜間模式</div>
+    <img src="https://cdn-icons-png.flaticon.com/512/590/590685.png" alt="番茄" class="tomato">
+    <h1>Kid</h1>
+    <div id="timer">25:00</div>
+    <div class="buttons">
+        <button id="start">開始</button>
+        <button id="pause">暫停</button>
+        <button id="reset">重設</button>
+    </div>
+
+    <script>
+        let timerDisplay = document.getElementById('timer');
+        let startBtn = document.getElementById('start');
+        let pauseBtn = document.getElementById('pause');
+        let resetBtn = document.getElementById('reset');
+        let modeToggle = document.getElementById('modeToggle');
+
+        let totalSeconds = 25 * 60;
+        let interval = null;
+        let isRunning = false;
+
+        function updateDisplay() {
+            let minutes = Math.floor(totalSeconds / 60);
+            let seconds = totalSeconds % 60;
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            if (isRunning) return;
+            isRunning = true;
+            interval = setInterval(() => {
+                if (totalSeconds > 0) {
+                    totalSeconds--;
+                    updateDisplay();
+                } else {
+                    clearInterval(interval);
+                    isRunning = false;
+                    alert('🍅 時間到！休息一下吧～');
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(interval);
+            isRunning = false;
+        }
+
+        function resetTimer() {
+            clearInterval(interval);
+            isRunning = false;
+            totalSeconds = 25 * 60;
+            updateDisplay();
+        }
+
+        function toggleMode() {
+            document.body.classList.toggle('dark');
+            if (document.body.classList.contains('dark')) {
+                modeToggle.textContent = '☀️ 日間模式';
+            } else {
+                modeToggle.textContent = '🌙 夜間模式';
+            }
+        }
+
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        modeToggle.addEventListener('click', toggleMode);
+
+        updateDisplay();
+    </script>
+</body>
+</html>
