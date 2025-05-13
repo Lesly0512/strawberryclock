@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Kid</title>
     <link rel="manifest" href="manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js').then(() => {
@@ -12,13 +13,7 @@
             });
         }
     </script>
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-    * {
-        box-sizing: border-box;
-    }
-
         :root {
             --bg-color: #fff0f5;
             --text-color: #333;
@@ -33,6 +28,10 @@
             --button-hover: #e63946;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             background-color: var(--bg-color);
             display: flex;
@@ -42,17 +41,16 @@
             min-height: 100vh;
             font-family: 'Comic Sans MS', cursive;
             transition: background-color 0.5s, color 0.5s;
+            padding: 20px;
         }
 
-        
-    .container {
-        width: 100%;
-        max-width: 500px;
-        padding: 20px;
-        text-align: center;
-    }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
 
-    .tomato {
+        .tomato {
             width: 150px;
             animation: bounce 2s infinite;
         }
@@ -78,7 +76,7 @@
             margin: 20px;
         }
 
-        .buttons {
+        .buttons, .settings {
             margin-top: 20px;
         }
 
@@ -109,17 +107,37 @@
             cursor: pointer;
             font-size: 1em;
         }
+
+        input {
+            width: 100px;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            text-align: center;
+            font-size: 1em;
+        }
     </style>
 </head>
 <body>
     <div class="mode-toggle" id="modeToggle">🌙 夜間模式</div>
-    <img src="https://cdn-icons-png.flaticon.com/512/590/590685.png" alt="番茄" class="tomato">
-    <h1>Kid</h1>
-    <div id="timer">25:00</div>
-    <div class="buttons">
-        <button id="start">開始</button>
-        <button id="pause">暫停</button>
-        <button id="reset">重設</button>
+    <div class="container">
+        <img src="https://cdn-icons-png.flaticon.com/512/590/590685.png" alt="番茄" class="tomato">
+        <h1>Kid</h1>
+        <div class="settings">
+            <div>
+                工作時間：<input type="number" id="workMinutes" value="25"> 分
+            </div>
+            <div>
+                休息時間：<input type="number" id="breakMinutes" value="5"> 分
+            </div>
+        </div>
+        <div id="timer">25:00</div>
+        <div class="buttons">
+            <button id="start">開始</button>
+            <button id="pause">暫停</button>
+            <button id="reset">重設</button>
+        </div>
     </div>
 
     <script>
@@ -128,10 +146,13 @@
         let pauseBtn = document.getElementById('pause');
         let resetBtn = document.getElementById('reset');
         let modeToggle = document.getElementById('modeToggle');
+        let workInput = document.getElementById('workMinutes');
+        let breakInput = document.getElementById('breakMinutes');
 
         let totalSeconds = 25 * 60;
         let interval = null;
         let isRunning = false;
+        let isWork = true;
 
         function updateDisplay() {
             let minutes = Math.floor(totalSeconds / 60);
@@ -149,7 +170,17 @@
                 } else {
                     clearInterval(interval);
                     isRunning = false;
-                    alert('🍅 時間到！休息一下吧～');
+                    if (isWork) {
+                        alert('🍅 工作結束！休息一下吧～');
+                        isWork = false;
+                        totalSeconds = parseInt(breakInput.value) * 60;
+                    } else {
+                        alert('⏰ 休息結束！回到工作吧～');
+                        isWork = true;
+                        totalSeconds = parseInt(workInput.value) * 60;
+                    }
+                    updateDisplay();
+                    startTimer();
                 }
             }, 1000);
         }
@@ -162,7 +193,8 @@
         function resetTimer() {
             clearInterval(interval);
             isRunning = false;
-            totalSeconds = 25 * 60;
+            isWork = true;
+            totalSeconds = parseInt(workInput.value) * 60;
             updateDisplay();
         }
 
@@ -179,6 +211,8 @@
         pauseBtn.addEventListener('click', pauseTimer);
         resetBtn.addEventListener('click', resetTimer);
         modeToggle.addEventListener('click', toggleMode);
+        workInput.addEventListener('change', resetTimer);
+        breakInput.addEventListener('change', resetTimer);
 
         updateDisplay();
     </script>
